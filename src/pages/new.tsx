@@ -1,6 +1,5 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useUser } from "@clerk/nextjs";
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Button } from "@/components/ui/button"
@@ -16,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
+import { api } from "@/utils/api";
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -70,37 +70,49 @@ const formSchema = z.object({
         .nonnegative({ message: "Value must be positive number." })
         .int({ message: "Value must be a whole number." })
     ),
-  mealtype: z.string().min(3, {
+  meal: z.string().min(3, {
     message: "The mealtype field must have at least 3 characters."
   }),
+  image: z.string().optional(),
 })
 
 const New: NextPage = () => {
-  // const hello = api.example.hello.useQuery({ text: "from tRPC" });
-  const user = useUser();
+  const createRecipe = api.recipe.create.useMutation()
+  // const user = useUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      description: "",
-      diet: "",
-      yield: "",
-      instruction: "",
+      name: "Test",
+      description: "Test",
+      diet: "LCHF",
+      yield: "4 portions",
+      instruction: "Test instructions",
       ingredients: [],
-      preptime: 0,
-      fatcontent: "",
-      calories: 0,
-      cooktime: 0,
-      mealtype: "",
+      preptime: 23,
+      fatcontent: "aslkjasdf",
+      calories: 340,
+      cooktime: 34,
+      meal: "Dinner",
+      image: "",
     },
   })
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
+    const ingredients = values.ingredients.map((ingredient) => {
+      return { ingredient: ingredient }
+    })
+
+    const newValues = {
+      ...values,
+      ingredients,
+    }
+
+    // await createRecipe.mutateAsync(newValues)
+    // form.reset()
+
+
   }
   return (
     <>
@@ -255,14 +267,28 @@ const New: NextPage = () => {
             />
             <FormField
               control={form.control}
-              name="mealtype"
+              name="meal"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Meal</FormLabel>
                   <FormControl>
                     <Input placeholder="Which meal" {...field} />
                   </FormControl>
-                  {/*<FormDescription>Short description of the recipe.</FormDescription>*/}
+                  <FormDescription>What meal would you eat this?</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="image"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Image</FormLabel>
+                  <FormControl>
+                    <Input type="file" placeholder="Add an image" {...field} />
+                  </FormControl>
+                  <FormDescription>Add image.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

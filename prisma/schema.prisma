@@ -10,22 +10,6 @@ generator client {
     provider = "prisma-client-js"
 }
 
-enum Role {
-    USER
-    ADMIN
-}
-
-model User {
-    id          String   @id @default(cuid())
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
-    displayname String
-    role        Role     @default(USER)
-    clerkid     String   @unique
-    email       String
-    recipes     Recipe[]
-}
-
 model Recipe {
     id            String       @id @default(cuid())
     createdAt     DateTime     @default(now())
@@ -33,22 +17,20 @@ model Recipe {
     name          String
     diet          String?
     yield         String
-    instructions  String
-    ingredient    Ingredient[]
-    prepTime      Float
+    instruction   String
+    ingredients   Ingredient[]
+    preptime      Float?
     fatcontent    String?
     calories      Float?
-    image         Image?       @relation(fields: [imageId], references: [id])
-    imageId       String?
+    imageUrl      String?
     description   String
     published     Boolean      @default(false)
     datepublished String
     cooktime      Float
-    author        User         @relation(fields: [authorId], references: [id])
     authorId      String
-    categories    Category[]
+    meal          String
 
-    @@index([imageId, authorId, name, description])
+    @@index([authorId, name, description])
 }
 
 model Ingredient {
@@ -59,19 +41,4 @@ model Ingredient {
     recipeId   String
 
     @@index([recipeId])
-}
-
-model Image {
-    id          String   @id @default(cuid())
-    createdAt   DateTime @default(now())
-    source      String
-    description String?
-    Recipe      Recipe[]
-}
-
-model Category {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    name      String
-    recipes   Recipe[]
 }

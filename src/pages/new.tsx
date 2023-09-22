@@ -284,9 +284,9 @@ const New: NextPage = () => {
               name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  {/*<FormLabel>Image of the meal</FormLabel>*/}
                   <FormControl>
-                      <CldUploadButton className="flex justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-black shadow-sm hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950" uploadPreset="uz5knhx9" options={{ sources: ['local'] }} onSuccess={(result) => form.setValue("imageUrl", result.info.url)}>Upload image of the meal</CldUploadButton>
+                      {/* @ts-ignore */}
+                      <CldUploadButton className="flex justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-black shadow-sm hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950" uploadPreset="uz5knhx9" options={{ sources: ['local'] }} onSuccess={(result) => form.setValue("imageUrl", result?.info?.url)}>Upload image of the meal</CldUploadButton>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

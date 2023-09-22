@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input"
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
 import { api } from "@/utils/api";
+import { CldUploadButton } from 'next-cloudinary';
 
 const formSchema = z.object({
   name: z.string().min(2, {
@@ -73,12 +74,11 @@ const formSchema = z.object({
   meal: z.string().min(3, {
     message: "The mealtype field must have at least 3 characters."
   }),
-  image: z.string().optional(),
+  imageUrl: z.string().optional(),
 })
 
 const New: NextPage = () => {
   const createRecipe = api.recipe.create.useMutation()
-  // const user = useUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -94,23 +94,23 @@ const New: NextPage = () => {
       calories: 340,
       cooktime: 34,
       meal: "Dinner",
-      image: "",
+      imageUrl: "",
     },
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
     const ingredients = values.ingredients.map((ingredient) => {
       return { ingredient: ingredient }
     })
+
 
     const newValues = {
       ...values,
       ingredients,
     }
 
-    // await createRecipe.mutateAsync(newValues)
-    // form.reset()
+    await createRecipe.mutateAsync(newValues)
+    form.reset()
 
 
   }
@@ -274,21 +274,20 @@ const New: NextPage = () => {
                   <FormControl>
                     <Input placeholder="Which meal" {...field} />
                   </FormControl>
-                  <FormDescription>What meal would you eat this?</FormDescription>
+                  <FormDescription>At what meal would you eat this?</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
               control={form.control}
-              name="image"
+              name="imageUrl"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Image</FormLabel>
+                  {/*<FormLabel>Image of the meal</FormLabel>*/}
                   <FormControl>
-                    <Input type="file" placeholder="Add an image" {...field} />
+                      <CldUploadButton className="flex justify-center rounded-md px-3 py-1.5 text-sm font-semibold leading-6 text-black shadow-sm hover:bg-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950" uploadPreset="uz5knhx9" options={{ sources: ['local'] }} onSuccess={(result) => form.setValue("imageUrl", result.info.url)}>Upload image of the meal</CldUploadButton>
                   </FormControl>
-                  <FormDescription>Add image.</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

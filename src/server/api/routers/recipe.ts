@@ -1,17 +1,24 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
 
 export const recipesRouter = createTRPCRouter({
-  // hello: publicProcedure
-  //   .input(z.object({ text: z.string() }))
-  //   .query(({ input }) => {
-  //     return {
-  //       greeting: `Hello ${input.text}`,
-  //     };
-  //   }),
-  // getAll: publicProcedure.query(({ ctx }) => {
-  //   return ctx.prisma.example.findMany();
-  // }),
+  getSingle: publicProcedure.input(z.object({recipeId: z.string() })).query(({ ctx, input }) => {
+    return ctx.prisma.recipe.findUnique({
+      where: {
+        id: input.recipeId,
+      },
+      include: {
+        ingredients: true,
+      }
+    })
+  }),
+  getAll: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.recipe.findMany({
+      include: {
+        ingredients: true,
+      }
+    });
+  }),
   create: protectedProcedure
     .input(z.object({
       name: z.string(),
@@ -27,9 +34,8 @@ export const recipesRouter = createTRPCRouter({
       cooktime: z.number(),
       meal: z.string(),
       diet: z.string(),
+      imageUrl: z.optional(z.string()),
     })).mutation(async ({ input, ctx }) => {
-      // TODO: redo ingredients
-      console.log(input)
       const recipe = await ctx.prisma.recipe.create({
         data: {
           ...input,
@@ -37,7 +43,6 @@ export const recipesRouter = createTRPCRouter({
             create: input.ingredients
           },
           authorId: ctx.auth.userId,
-          imageUrl: 'https://placehold.co/600x400',
           datepublished: ''
         }
       })

@@ -2,6 +2,16 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "@/server/api/trpc";
 
 export const recipesRouter = createTRPCRouter({
+  getRecipesByAuthor: protectedProcedure.query(({ ctx }) => {
+    return ctx.prisma.recipe.findMany({
+      where: {
+        authorId: ctx.auth.userId,
+      },
+      include: {
+        ingredients: true,
+      }
+    })
+  }),
   getSingle: publicProcedure.input(z.object({recipeId: z.string() })).query(({ ctx, input }) => {
     return ctx.prisma.recipe.findUnique({
       where: {

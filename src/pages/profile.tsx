@@ -4,11 +4,18 @@ import { api } from "@/utils/api";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 
 const Dashboard: NextPage = () => {
   const { data: recipes } = api.recipe.getRecipesByAuthor.useQuery();
-  console.log(recipes)
+  const deleteRecipe = api.recipe.delete.useMutation()
+  const router = useRouter()
+
+  async function remove(id: string) {
+    await deleteRecipe.mutateAsync({id})
+    router.reload()
+  }
 
   return (
     <>
@@ -41,6 +48,7 @@ const Dashboard: NextPage = () => {
               <CardFooter>
                 <p>{recipe.yield}</p>
                 <Link href={`/r/${recipe.id}`}>Go to recipe</Link>
+        <button onClick={() => remove(recipe.id)}>Remove</button>
               </CardFooter>
             </Card>))
             : ''}
